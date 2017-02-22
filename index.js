@@ -11,7 +11,7 @@ setInterval(function () {
     var item = items[Math.floor(Math.random() * items.length)];
     io.emit("newplayer", {
         score: "0",
-        color: "#" + item
+        color: item
     });
 }, 1000);
 
