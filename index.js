@@ -12,7 +12,7 @@ io.on('connection', function(client){
             client.emit("deadplayer", {
                 "player": id
             });
-        }, 10000 + Math.floor(Math.random() * 15000);
+        }, 10000 + Math.floor(Math.random() * 15000));
     });
 
 	client.on("scorebord", function(data) {
