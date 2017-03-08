@@ -38,7 +38,7 @@ setInterval(function () {
     console.log(item);
 
     i++;
-}, 10000 + Math.floor(Math.random() * 15000));
+}, 5000 + Math.floor(Math.random() * 3000));
 
 console.log("Now listening on *:3000");
 io.listen(3000);
