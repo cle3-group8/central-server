@@ -26,6 +26,7 @@ const items =  ["#F44336", "#E91E63", "#9C27B0", "#673AB7",
 
 var i = 0;
 
+/* SCOREBOARD DEMODATA */
 setInterval(function () {
     var item = items[i % items.length];
 
@@ -39,6 +40,20 @@ setInterval(function () {
 
     i++;
 }, 5000 + Math.floor(Math.random() * 3000));
+
+var playerId = 10;
+var x = 0;
+var y = 0;
+
+/* PROJECTIE DEMO DATA */
+setInterval(function() {
+    io.emit("playerMove", {
+        playerId: playerId,
+        color: "#F44336",
+        x: x += Math.floor(Math.random() * 25),
+        y: x += Math.floor(Math.random() * 25)
+    });
+}, 250);
 
 console.log("Now listening on *:3000");
 io.listen(3000);
