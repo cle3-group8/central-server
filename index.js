@@ -47,16 +47,18 @@ var y = 40;
 setInterval(function() {
     var boolX = Math.random() >= 0.4;
     var boolY = Math.random() >= 0.4;
+    var color = items[i % items.length];
 
     io.emit("playerMove", [{
         id: playerId,
-        color: "#F44336",
+        color: color,
         x: boolX ? (x += Math.floor(Math.random() * 5)) : (x -= Math.floor(Math.random() * 5)),
         y: boolY ? (x += Math.floor(Math.random() * 5)) : (x -= Math.floor(Math.random() * 5))
     }]);
 
     if(x > 500) {
         x = 0; y = 0; ++playerId;
+        color = items[i % items.length];
     }
 }, 100);
 
