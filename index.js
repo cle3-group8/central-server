@@ -45,11 +45,14 @@ var y = 0;
 
 /* PROJECTIE DEMO DATA */
 setInterval(function() {
+    var boolX = Math.random() >= 0.3;
+    var boolY = Math.random() >= 0.3;
+
     io.emit("playerMove", [{
         id: playerId,
         color: "#F44336",
-        x: x += Math.floor(Math.random() * 5),
-        y: x += Math.floor(Math.random() * 5)
+        x: boolX ? (x += Math.floor(Math.random() * 5) : (x -= Math.floor(Math.random() * 5)),
+        y: boolY ? (x += Math.floor(Math.random() * 5) : (x -= Math.floor(Math.random() * 5))
     }]);
 
     if(x > 500) {
