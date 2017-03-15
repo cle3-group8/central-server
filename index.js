@@ -40,13 +40,13 @@ setInterval(function () {
 }, 5000 + Math.floor(Math.random() * 3000));
 
 var playerId = 10;
-var x = 0;
-var y = 0;
+var x = 40;
+var y = 40;
 
 /* PROJECTIE DEMO DATA */
 setInterval(function() {
-    var boolX = Math.random() >= 0.3;
-    var boolY = Math.random() >= 0.3;
+    var boolX = Math.random() >= 0.4;
+    var boolY = Math.random() >= 0.4;
 
     io.emit("playerMove", [{
         id: playerId,
