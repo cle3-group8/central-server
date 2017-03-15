@@ -44,6 +44,15 @@ var x = 40;
 var y = 40;
 var color = items[Math.floor(Math.random() * items.length)];
 
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
 /* PROJECTIE DEMO DATA */
 setInterval(function() {
     var boolX = Math.random() >= 0.4;
@@ -51,7 +60,7 @@ setInterval(function() {
 
     io.emit("playerMove", [{
         id: playerId,
-        color: color,
+        color: getRandomColor(), // DEBUGGING
         x: boolX ? (x += Math.floor(Math.random() * 5)) : (x -= Math.floor(Math.random() * 5)),
         y: boolY ? (x += Math.floor(Math.random() * 5)) : (x -= Math.floor(Math.random() * 5))
     }]);
