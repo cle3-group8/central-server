@@ -58,7 +58,7 @@ setInterval(function() {
     if(x > 500) {
         x = 0; y = 0; ++playerId;
     }
-}, 250);
+}, 100);
 
 console.log("Now listening on *:3000");
 io.listen(3000);
