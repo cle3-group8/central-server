@@ -46,7 +46,7 @@ var y = 0;
 /* PROJECTIE DEMO DATA */
 setInterval(function() {
     io.emit("playerMove", [{
-        playerId: playerId,
+        id: playerId,
         color: "#F44336",
         x: x += Math.floor(Math.random() * 2),
         y: x += Math.floor(Math.random() * 2)
