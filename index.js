@@ -36,8 +36,6 @@ setInterval(function () {
 	    name: generateName(),
     });
 
-    console.log(item);
-
     i++;
 }, 5000 + Math.floor(Math.random() * 3000));
 
@@ -50,9 +48,13 @@ setInterval(function() {
     io.emit("playerMove", {
         playerId: playerId,
         color: "#F44336",
-        x: x += Math.floor(Math.random() * 25),
-        y: x += Math.floor(Math.random() * 25)
+        x: x += Math.floor(Math.random() * 2),
+        y: x += Math.floor(Math.random() * 2)
     });
+
+    if(x > 500) {
+        x = 0; y = 0; ++playerId;
+    }
 }, 250);
 
 console.log("Now listening on *:3000");
