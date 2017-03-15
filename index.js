@@ -45,12 +45,12 @@ var y = 0;
 
 /* PROJECTIE DEMO DATA */
 setInterval(function() {
-    io.emit("playerMove", {
+    io.emit("playerMove", [{
         playerId: playerId,
         color: "#F44336",
         x: x += Math.floor(Math.random() * 2),
         y: x += Math.floor(Math.random() * 2)
-    });
+    }]);
 
     if(x > 500) {
         x = 0; y = 0; ++playerId;
