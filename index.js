@@ -48,8 +48,8 @@ setInterval(function() {
     io.emit("playerMove", [{
         id: playerId,
         color: "#F44336",
-        x: x += Math.floor(Math.random() * 2),
-        y: x += Math.floor(Math.random() * 2)
+        x: x += Math.floor(Math.random() * 5),
+        y: x += Math.floor(Math.random() * 5)
     }]);
 
     if(x > 500) {
