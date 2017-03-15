@@ -42,12 +42,12 @@ setInterval(function () {
 var playerId = 10;
 var x = 40;
 var y = 40;
+var color = items[Math.floor(Math.random() * items.length)];
 
 /* PROJECTIE DEMO DATA */
 setInterval(function() {
     var boolX = Math.random() >= 0.4;
     var boolY = Math.random() >= 0.4;
-    var color = items[i % items.length];
 
     io.emit("playerMove", [{
         id: playerId,
