@@ -19,7 +19,7 @@ var pcount = 0;
 function createPlayer(coord) {
     pcount++;
 
-    var item = items[i % items.length];
+    var item = items[pcount % items.length];
 
     let p = {
         id: pcount,
