@@ -13,15 +13,16 @@ var players = [];
 const items =  ["#F44336", "#E91E63", "#9C27B0", "#673AB7",
     "#3F51B5", "#03A9F4", "#00BCD4", "#009688", "#4CAF50",
     "#8BC34A", "#FFEB3B", "#FFC107", "#FF5722"];
-    var item = items[i % items.length];
 
-var i = 0;
+var pcount = 0;
 
 function createPlayer(coord) {
-    i++;
+    pcount++;
+
+    var item = items[i % items.length];
 
     let p = {
-        id: i,
+        id: pcount,
         score: "0",
         color: item,
 	    name: generateName(),
