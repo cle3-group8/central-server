@@ -54,6 +54,7 @@ io.on('connection', client => {
 
         console.log(JSON.stringify(players));
 
+        let outArray = [];
 
         var firstIteration = false;
 
@@ -100,13 +101,16 @@ io.on('connection', client => {
             players[highest].coord = coord;
 
             let player = players[highest];
-            io.emit("playermove", [{
+
+            outArray.push({
                 id: player.id,
                 color: player.color,
                 x: player.coord.x,
                 y: player.coord.y
-            }]);
+            })
         }
+
+        io.emit("playermove", outArray);
     });
 });
 
