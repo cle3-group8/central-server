@@ -58,7 +58,7 @@ setInterval(function() {
     var boolX = Math.random() >= 0.4;
     var boolY = Math.random() >= 0.4;
 
-    io.emit("playerMove", [{
+    io.emit("playermove", [{
         id: playerId,
         color: color, // DEBUGGING
         x: boolX ? (x += Math.floor(Math.random() * 5)) : (x -= Math.floor(Math.random() * 5)),
