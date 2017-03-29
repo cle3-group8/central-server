@@ -2,8 +2,8 @@ const io = require('socket.io')();
 const generateName = require('sillyname');
 
 function calculateDistance(obj1, obj2) {
-    let a = Math.pow((obj1.x * obj2.x), 2);
-    let b = Math.pow((obj1.y * obj2.y), 2);
+    let a = Math.pow((obj1.x - obj1.x), 2);
+    let b = Math.pow((obj1.y - obj2.y), 2);
 
     return Math.sqrt(a + b)
 }
@@ -52,7 +52,7 @@ io.on('connection', client => {
             return;
         };
 
-        console.log(JSON.stringify(players));
+//        console.log(JSON.stringify(players));
 
         let outArray = [];
 
@@ -96,7 +96,7 @@ io.on('connection', client => {
                 let dis = calculateDistance(coord, p.coord);
                 distances.push(Math.floor(dis))
             }
-
+		console.log(distances)
             let highest = distances.indexOf(Math.min.apply(null, distances))
             players[highest].coord = coord;
 
@@ -110,13 +110,15 @@ io.on('connection', client => {
             })
         }
 
+	console.log(outArray);
         io.emit("playermove", outArray);
     });
 });
 
-/* SCOREBOARD DEMODATA
+/* SCOREBOARD DEMODATA */
+var y = 0;
 setInterval(function () {
-    var item = items[i % items.length];
+    var item = items[y++ % items.length];
 
     io.emit("newplayer", {
         score: "0",
@@ -124,9 +126,8 @@ setInterval(function () {
 	    name: generateName(),
     });
 
-    i++;
 }, 5000 + Math.floor(Math.random() * 3000));
-
+/*
 var playerId = 10;
 var x = 40;
 var y = 40;
