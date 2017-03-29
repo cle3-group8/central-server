@@ -103,7 +103,7 @@ io.on('connection', client => {
             let player = players[highest];
 
             outArray.push({
-                id: player.id,
+                playerid: player.id,
                 color: player.color,
                 x: player.coord.x,
                 y: player.coord.y
