@@ -34,27 +34,22 @@ function createPlayer(coord) {
 }
 
 function highestPlayerCoord(coords, players) {
-    for (var y = 0; y < coords.length; y++) {
-        let coord = coords[y];
-        var distances = [];
+    for (p of players) {
+        var distances = []
 
-        for (var k = 0; k < players.length; k++) {
-            let p = players[k];
-            let dis = calculateDistance(coord, p.coord);
-            distances.push(Math.floor(dis))
+        for (c of coords) {
+            distances.push(calculateDistance(p.coord, c));
         }
 
-        let lowest = coords.indexOf(Math.min.apply(null, distances));
-
-        console.log(distances)
-
-        //if it's at least 15 px away it's either walking the speed of sound or a new object
-        if(distances[lowest] > 15) return lowest;
-        //efficiency:
-        coords.splice(lowest, 1);
+        let lowestDistanceIndex = distances.indexOf(Math.min.apply(null, distances));
+        coords.splice(lowestDistanceIndex, 1);
     }
 
-    return 0;
+    if(coords.length < 1) {
+        throw new Error(`Unexpected coordinate array length ${coords.length}`);
+    }
+
+    return coords[0];
 }
 
 console.log("Registering listeners...");
@@ -71,109 +66,41 @@ io.on('connection', client => {
         }, 10000 + Math.floor(Math.random() * 15000));
     });
 
-    var zeroRate = 0;
-    var removalZeroRate = 0;
+    var emptyOutputs = 0;
 
     client.on("objectupdate", data => {
         if(data.length == 0) {
-            //console.log("emoty update rated at", zeroRate)
-            zeroRate++;
-            //console.log(zeroRate)
-
-            if(zeroRate == 2) {
-                zeroRate = 0;
-                removalZeroRate = 0;
+            if(++emptyOutputs > 2) {
                 players = [];
-                //console.log("EMPTIED")
+                emptyOutputs = 0;
+
+                io.emit("playersempty", {});
+
                 return;
             }
 
             return;
-        };
-
-        zeroRate = 0;
-
-        let outArray = [];
-        var firstIteration = false;
-
-        if(players.length == 0) {
-            firstIteration = true;
         }
 
-        if(data.length > players.length) {
-            console.log("Indifference: creating player")
-
-            let indexOfEntry = highestPlayerCoord(data, players)
-            console.log("===", indexOfEntry)
-            console.log("hpc:", data[indexOfEntry]);
-            createPlayer(data[indexOfEntry]);
+        while (data.length > players.length) {
+            let highestCoord = highestPlayerCoord(data, players);
+            createPlayer(highestCoord)
         }
 
-        for (var j = 0; j < data.length; j++) {
-            let coord = data[j];
+        var dataOut = [];
 
-            if(coord == undefined) {
-                continue;
-            }
-
-            console.log(players)
-
-            if(firstIteration) {
-                createPlayer(coord);
-                console.log("Created Player!")
-            }
-
-            while(players.length > data.length) {
-                console.log("Removing one!")
-                let furthestawaydis = -1;
-                let highestp = 0;
-
-                if(removalZeroRate == 2) {
-                    removalZeroRate = 0;
-
-                    for (var l = 0; l < players.length; l++) {
-                        let p = players[l];
-                        let dis = calculateDistance(coord, p.coord)
-
-                        if(dis > 30) {
-                            furthestawaydis = dis;
-                            highestp = l
-                            break;
-                        }
-                    }
-
-                    players.splice(highestp, 1);
-                } else {
-                    break;
-                }
-            }
-
-            var distances = [];
-
-            for (var k = 0; k < players.length; k++) {
-                let p = players[k];
-                let dis = calculateDistance(coord, p.coord);
-                console.log("Distance iteration")
-                distances.push(Math.floor(dis))
-            }
-
-		    console.log(distances)
-
-            let highest = distances.indexOf(Math.min.apply(null, distances))
-            players[highest].coord = coord;
-
-            let player = players[highest];
-
-            outArray.push({
+        for (player of players) {
+            dataOut.push({
                 playerid: player.id,
                 color: player.color,
                 x: player.coord.x,
                 y: player.coord.y
-            })
+            });
         }
 
-       console.log(outArray);
-       io.emit("playermove", outArray);
+        console.log("DataOutput =", dataOut);
+
+        io.emit("playermove", dataOut);
     });
 });
 
