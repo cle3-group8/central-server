@@ -1,5 +1,11 @@
 const io = require('socket.io')();
 const generateName = require('sillyname');
+const items =  ["#F44336", "#E91E63", "#9C27B0", "#673AB7",
+    "#3F51B5", "#03A9F4", "#00BCD4", "#009688", "#4CAF50",
+    "#8BC34A", "#FFEB3B", "#FFC107", "#FF5722"];
+
+var pcount = 0;
+var players = [];
 
 function calculateDistance(obj1, obj2) {
     let a = Math.pow((obj1.x - obj1.x), 2);
@@ -8,16 +14,7 @@ function calculateDistance(obj1, obj2) {
     return Math.sqrt(a + b)
 }
 
-var players = [];
-
-const items =  ["#F44336", "#E91E63", "#9C27B0", "#673AB7",
-    "#3F51B5", "#03A9F4", "#00BCD4", "#009688", "#4CAF50",
-    "#8BC34A", "#FFEB3B", "#FFC107", "#FF5722"];
-
-var pcount = 0;
-
 function createPlayer(coord) {
-    console.log(pcount)
     pcount++;
 
     var item = items[pcount % items.length];
@@ -26,11 +23,57 @@ function createPlayer(coord) {
         id: pcount,
         score: "0",
         color: item,
+        iterations: 0,
+        history: [],
 	    name: generateName(),
         coord: coord
     }
 
     players.push(p);
+}
+
+function coordEquals(a, b) {
+    return a.x == b.x && a.y == b.y;
+}
+
+function checkLeavingObjects() {
+    //console.log("Checking for leaving objects....");
+    for (var i = 0; i < players.length; i++) {
+        let p = players[i];
+
+        let id = p.id;
+
+        if(p.history.length < 3) {
+            continue;
+        }
+
+        if(coordEquals(p.history[p.history.length - 1], p.history[p.history.length - 2])) {
+            //console.log("stilstanding player, ", p.id)
+            players.splice(i, 1);
+        }
+    }
+
+    logPlayers();
+}
+
+function logPlayers() {
+    var cleanObjects = [];
+
+    for (p of players) {
+        cleanObjects.push({
+            id: p.id,
+            coord: p.coord
+        })
+    }
+
+    console.log("players = ", cleanObjects)
+}
+
+function syncPreviousEntries() {
+    for (p of players) {
+        p.iterations++;
+        p.history.push(p.coord)
+    }
 }
 
 function highestPlayerCoord(coords, players) {
@@ -83,7 +126,6 @@ io.on('connection', client => {
 
     client.on("objectupdate", data => {
         if(data.length == 0) {
-            console.log("empty array :(")
             if(++emptyOutputs > 2) {
                 players = [];
                 emptyOutputs = 0;
@@ -96,6 +138,8 @@ io.on('connection', client => {
             return;
         }
 
+        console.log("Data ", data)
+
         emptyOutputs = 0;
 
         while (data.length > players.length) {
@@ -106,6 +150,8 @@ io.on('connection', client => {
         for (coord of data) {
             updatePlayerByCoord(coord)
         }
+
+        checkLeavingObjects();
 
         var dataOut = [];
 
@@ -121,6 +167,8 @@ io.on('connection', client => {
         console.log("DataOutput =", dataOut);
 
         io.emit("playermove", dataOut);
+
+        syncPreviousEntries();
     });
 });
 
