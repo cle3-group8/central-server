@@ -52,6 +52,19 @@ function highestPlayerCoord(coords, players) {
     return coords[0];
 }
 
+function updatePlayerByCoord(coord) {
+    var distances = [];
+
+    for (var k = 0; k < players.length; k++) {
+        let p = players[k];
+        let dis = calculateDistance(coord, p.coord);
+        distances.push(Math.floor(dis))
+    }
+
+    let match = distances.indexOf(Math.min.apply(null, distances))
+    players[match].coord = coord;
+}
+
 console.log("Registering listeners...");
 io.on('connection', client => {
     console.log("Someone connected!");
@@ -70,6 +83,7 @@ io.on('connection', client => {
 
     client.on("objectupdate", data => {
         if(data.length == 0) {
+            console.log("empty array :(")
             if(++emptyOutputs > 2) {
                 players = [];
                 emptyOutputs = 0;
@@ -82,9 +96,15 @@ io.on('connection', client => {
             return;
         }
 
+        emptyOutputs = 0;
+
         while (data.length > players.length) {
             let highestCoord = highestPlayerCoord(data, players);
             createPlayer(highestCoord)
+        }
+
+        for (coord of data) {
+            updatePlayerByCoord(coord)
         }
 
         var dataOut = [];
