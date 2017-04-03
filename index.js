@@ -17,6 +17,7 @@ const items =  ["#F44336", "#E91E63", "#9C27B0", "#673AB7",
 var pcount = 0;
 
 function createPlayer(coord) {
+    console.log(pcount)
     pcount++;
 
     var item = items[pcount % items.length];
@@ -46,13 +47,29 @@ io.on('connection', client => {
         }, 10000 + Math.floor(Math.random() * 15000));
     });
 
+    var zeroRate = 0;
+    var removalZeroRate = 0;
+
     client.on("objectupdate", data => {
         if(data.length == 0) {
-            players = [];
+            //console.log("emoty update rated at", zeroRate)
+            zeroRate++;
+            //console.log(zeroRate)
+
+            if(zeroRate == 2) {
+                zeroRate = 0;
+                removalZeroRate = 0;
+                players = [];
+                //console.log("EMPTIED")
+                return;
+            }
+
             return;
         };
 
-//        console.log(JSON.stringify(players));
+        zeroRate = 0;
+
+        //console.log(JSON.stringify(players));
 
         let outArray = [];
 
@@ -62,31 +79,39 @@ io.on('connection', client => {
             firstIteration = true;
         }
 
+        console.log(data)
+
         for (var j = 0; j < data.length; j++) {
             let coord = data[j];
 
             if(firstIteration) {
                 createPlayer(coord);
                 console.log("Created Player!")
-                continue;
             }
 
             while(players.length > data.length) {
+                console.log("Removing one!")
                 let furthestawaydis = -1;
                 let highestp = 0;
 
-                for (var l = 0; l < players.length; l++) {
-                    let p = players[l];
-                    let dis = calculateDistance(coord, p.coord)
+                if(removalZeroRate == 2) {
+                    removalZeroRate = 0;
 
-                    if(dis > 30) {
-                        furthestawaydis = dis;
-                        highestp = l
-                        break;
+                    for (var l = 0; l < players.length; l++) {
+                        let p = players[l];
+                        let dis = calculateDistance(coord, p.coord)
+
+                        if(dis > 30) {
+                            furthestawaydis = dis;
+                            highestp = l
+                            break;
+                        }
                     }
-                }
 
-                players.splice(highestp, 1);
+                    players.splice(highestp, 1);
+                } else {
+                    break;
+                }
             }
 
             var distances = [];
@@ -94,9 +119,12 @@ io.on('connection', client => {
             for (var k = 0; k < players.length; k++) {
                 let p = players[k];
                 let dis = calculateDistance(coord, p.coord);
+                console.log("Distance iteration")
                 distances.push(Math.floor(dis))
             }
-		console.log(distances)
+
+		    console.log(distances)
+
             let highest = distances.indexOf(Math.min.apply(null, distances))
             players[highest].coord = coord;
 
@@ -110,8 +138,8 @@ io.on('connection', client => {
             })
         }
 
-	console.log(outArray);
-        io.emit("playermove", outArray);
+       console.log(outArray);
+       io.emit("playermove", outArray);
     });
 });
 
@@ -127,38 +155,7 @@ setInterval(function () {
     });
 
 }, 5000 + Math.floor(Math.random() * 3000));
-/*
-var playerId = 10;
-var x = 40;
-var y = 40;
-var color = items[Math.floor(Math.random() * items.length)];
 
-function getRandomColor() {
-    var letters = '0123456789ABCDEF';
-    var color = '#';
-    for (var i = 0; i < 6; i++ ) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-}
-
-/* PROJECTIE DEMO DATA
-setInterval(function() {
-    var boolX = Math.random() >= 0.4;
-    var boolY = Math.random() >= 0.4;
-
-    io.emit("playermove", [{
-        id: playerId,
-        color: color, // DEBUGGING
-        x: boolX ? (x += Math.floor(Math.random() * 5)) : (x -= Math.floor(Math.random() * 5)),
-        y: boolY ? (x += Math.floor(Math.random() * 5)) : (x -= Math.floor(Math.random() * 5))
-    }]);
-
-    if(x > 500) {
-        x = 0; y = 0; ++playerId;
-        color = items[i % items.length];
-    }
-}, 100);*/
 
 console.log("Now listening on *:3000");
 io.listen(3000);
