@@ -33,6 +33,30 @@ function createPlayer(coord) {
     players.push(p);
 }
 
+function highestPlayerCoord(coords, players) {
+    for (var y = 0; y < coords.length; y++) {
+        let coord = coords[y];
+        var distances = [];
+
+        for (var k = 0; k < players.length; k++) {
+            let p = players[k];
+            let dis = calculateDistance(coord, p.coord);
+            distances.push(Math.floor(dis))
+        }
+
+        let lowest = coords.indexOf(Math.min.apply(null, distances));
+
+        console.log(distances)
+
+        //if it's at least 15 px away it's either walking the speed of sound or a new object
+        if(distances[lowest] > 15) return lowest;
+        //efficiency:
+        coords.splice(lowest, 1);
+    }
+
+    return 0;
+}
+
 console.log("Registering listeners...");
 io.on('connection', client => {
     console.log("Someone connected!");
@@ -69,20 +93,30 @@ io.on('connection', client => {
 
         zeroRate = 0;
 
-        //console.log(JSON.stringify(players));
-
         let outArray = [];
-
         var firstIteration = false;
 
         if(players.length == 0) {
             firstIteration = true;
         }
 
-        console.log(data)
+        if(data.length > players.length) {
+            console.log("Indifference: creating player")
+
+            let indexOfEntry = highestPlayerCoord(data, players)
+            console.log("===", indexOfEntry)
+            console.log("hpc:", data[indexOfEntry]);
+            createPlayer(data[indexOfEntry]);
+        }
 
         for (var j = 0; j < data.length; j++) {
             let coord = data[j];
+
+            if(coord == undefined) {
+                continue;
+            }
+
+            console.log(players)
 
             if(firstIteration) {
                 createPlayer(coord);
