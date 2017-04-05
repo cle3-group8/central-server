@@ -86,7 +86,7 @@ io.on('connection', client => {
 
         if(!greenChecked && players["green"]) {
             playerleft(players["green"])
-            client.emit("deadplayer", {
+            io.emit("deadplayer", {
                 "player": players["green"].id
             });
 
@@ -95,7 +95,7 @@ io.on('connection', client => {
 
         if(!purpleChecked && players["purple"]) {
             playerleft(players["purple"])
-            client.emit("deadplayer", {
+            io.emit("deadplayer", {
                 "player": players["purple"].id
             });
 
