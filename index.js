@@ -65,6 +65,15 @@ io.on('connection', client => {
 
     var emptyOutputs = 0;
 
+    function playerleft(player) {
+        try {
+            let id = player.id;
+            socket.emit("playerleft", id)
+        } catch (e) {
+            return;
+        }
+    }
+
     client.on("objectupdate", data => {
 
         var greenChecked = false;
@@ -78,13 +87,15 @@ io.on('connection', client => {
         }
 
         if(!greenChecked && players["green"]) {
+            playerleft(players["green"])
+
             delete players["green"]
-            console.log("deleted green")
         }
 
         if(!purpleChecked && players["purple"]) {
+            playerleft(players["purple"])
+
             delete players["purple"]
-            console.log("deleted purple")
         }
 
         var dataOut = [];
