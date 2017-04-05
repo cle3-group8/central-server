@@ -5,7 +5,7 @@ const items =  ["#F44336", "#E91E63", "#9C27B0", "#673AB7",
     "#8BC34A", "#FFEB3B", "#FFC107", "#FF5722"];
 
 var pcount = 0;
-var players = [];
+var players = {};
 
 function calculateDistance(obj1, obj2) {
     let a = Math.pow((obj1.x - obj1.x), 2);
@@ -14,46 +14,26 @@ function calculateDistance(obj1, obj2) {
     return Math.sqrt(a + b)
 }
 
-function createPlayer(coord) {
-    pcount++;
+function createPlayer(x, y, id) {
 
-    var item = items[pcount % items.length];
+    var item = items[id % items.length];
 
     let p = {
-        id: pcount,
+        id: id,
         score: "0",
         color: item,
         iterations: 0,
         history: [],
 	    name: generateName(),
-        coord: coord
+        x: x,
+        y: y
     }
 
-    players.push(p);
+    return p;
 }
 
 function coordEquals(a, b) {
     return a.x == b.x && a.y == b.y;
-}
-
-function checkLeavingObjects() {
-    //console.log("Checking for leaving objects....");
-    for (var i = 0; i < players.length; i++) {
-        let p = players[i];
-
-        let id = p.id;
-
-        if(p.history.length < 3) {
-            continue;
-        }
-
-        if(coordEquals(p.history[p.history.length - 1], p.history[p.history.length - 2])) {
-            //console.log("stilstanding player, ", p.id)
-            players.splice(i, 1);
-        }
-    }
-
-    logPlayers();
 }
 
 function logPlayers() {
@@ -67,45 +47,6 @@ function logPlayers() {
     }
 
     console.log("players = ", cleanObjects)
-}
-
-function syncPreviousEntries() {
-    for (p of players) {
-        p.iterations++;
-        p.history.push(p.coord)
-    }
-}
-
-function highestPlayerCoord(coords, players) {
-    for (p of players) {
-        var distances = []
-
-        for (c of coords) {
-            distances.push(calculateDistance(p.coord, c));
-        }
-
-        let lowestDistanceIndex = distances.indexOf(Math.min.apply(null, distances));
-        coords.splice(lowestDistanceIndex, 1);
-    }
-
-    if(coords.length < 1) {
-        throw new Error(`Unexpected coordinate array length ${coords.length}`);
-    }
-
-    return coords[0];
-}
-
-function updatePlayerByCoord(coord) {
-    var distances = [];
-
-    for (var k = 0; k < players.length; k++) {
-        let p = players[k];
-        let dis = calculateDistance(coord, p.coord);
-        distances.push(Math.floor(dis))
-    }
-
-    let match = distances.indexOf(Math.min.apply(null, distances))
-    players[match].coord = coord;
 }
 
 console.log("Registering listeners...");
@@ -125,50 +66,56 @@ io.on('connection', client => {
     var emptyOutputs = 0;
 
     client.on("objectupdate", data => {
-        if(data.length == 0) {
-            if(++emptyOutputs > 2) {
-                players = [];
-                emptyOutputs = 0;
 
-                io.emit("playersempty", {});
+        var greenChecked = false;
+        var purpleChecked = false;
 
-                return;
-            }
+        for (dataObject of data) {
+            let color = dataObject.ball;
 
-            return;
+            if(color == "green") greenChecked = true;
+            if(color == "purple") purpleChecked = true;
         }
 
-        console.log("Data ", data)
-
-        emptyOutputs = 0;
-
-        while (data.length > players.length) {
-            let highestCoord = highestPlayerCoord(data, players);
-            createPlayer(highestCoord)
+        if(!greenChecked && players["green"]) {
+            delete players["green"]
+            console.log("deleted green")
         }
 
-        for (coord of data) {
-            updatePlayerByCoord(coord)
+        if(!purpleChecked && players["purple"]) {
+            delete players["purple"]
+            console.log("deleted purple")
         }
-
-        checkLeavingObjects();
 
         var dataOut = [];
 
-        for (player of players) {
+        for (object of data) {
+            let x  = object.coord[0];
+            let y = object.coord[1];
+            let color = object.ball;
+
+            if(!players[color]) {
+                players[color] = createPlayer(x, y, pcount++);
+            } else {
+                players[color].x = x;
+                players[color].y = y;
+            }
+
+            let player = players[color];
+
             dataOut.push({
                 playerid: player.id,
                 color: player.color,
-                x: player.coord.x,
-                y: player.coord.y
+                x: player.x,
+                y: player.y
             });
+
         }
 
-        console.log("DataOutput =", dataOut);
+        console.log("DataOut= ", dataOut)
 
         io.emit("playermove", dataOut);
 
-        syncPreviousEntries();
     });
 });
 
