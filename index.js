@@ -30,9 +30,10 @@ function createPlayer(x, y, id) {
     }
 
     io.emit("newplayer", {
+        id: p.id,
         score: p.score,
         color: p.color,
-        name: p.name,
+        name: p.name
     });
 
     return p;
