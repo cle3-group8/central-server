@@ -29,6 +29,12 @@ function createPlayer(x, y, id) {
         y: y
     }
 
+    io.emit("newplayer", {
+        score: p.score,
+        color: p.color,
+        name: p.name,
+    });
+
     return p;
 }
 
@@ -52,16 +58,6 @@ function logPlayers() {
 console.log("Registering listeners...");
 io.on('connection', client => {
     console.log("Someone connected!");
-
-    client.on("playerid", data => {
-        let id = data.playerNumber;
-
-        setTimeout(function () {
-            client.emit("deadplayer", {
-                "player": id
-            });
-        }, 10000 + Math.floor(Math.random() * 15000));
-    });
 
     var emptyOutputs = 0;
 
@@ -89,12 +85,18 @@ io.on('connection', client => {
 
         if(!greenChecked && players["green"]) {
             playerleft(players["green"])
+            client.emit("deadplayer", {
+                "player": players["green"].id
+            });
 
             delete players["green"]
         }
 
         if(!purpleChecked && players["purple"]) {
             playerleft(players["purple"])
+            client.emit("deadplayer", {
+                "player": players["purple"].id
+            });
 
             delete players["purple"]
         }
@@ -118,6 +120,7 @@ io.on('connection', client => {
             dataOut.push({
                 playerid: player.id,
                 color: player.color,
+                name: player.name,
                 x: player.x,
                 y: player.y
             });
@@ -127,22 +130,8 @@ io.on('connection', client => {
         console.log("DataOut= ", dataOut)
 
         io.emit("playermove", dataOut);
-
     });
 });
-
-/* SCOREBOARD DEMODATA */
-var y = 0;
-setInterval(function () {
-    var item = items[y++ % items.length];
-
-    io.emit("newplayer", {
-        score: "0",
-        color: item,
-	    name: generateName(),
-    });
-
-}, 5000 + Math.floor(Math.random() * 3000));
 
 
 console.log("Now listening on *:3000");
