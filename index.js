@@ -70,6 +70,7 @@ io.on('connection', client => {
             let id = player.id;
             socket.emit("playerleft", id)
         } catch (e) {
+            console.log("the fuck?")
             return;
         }
     }
